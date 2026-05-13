@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
+import { useMediaQuery, BREAKPOINTS } from "@/hooks/useMediaQuery";
 import type { Tweaks } from "@/types/tweaks";
 
 import { FaWhatsapp, FaSlack, FaStripe } from "react-icons/fa";
@@ -133,6 +134,7 @@ function Ring({ orbit, accentColor }: { orbit: OrbitConfig; accentColor: string 
 // ─── section ───────────────────────────────────────────────────────────────────
 export default function Integrations({ tweaks }: { tweaks: Tweaks }) {
   const [ref, visible] = useScrollReveal();
+  const isMobile = useMediaQuery(BREAKPOINTS.mobile);
 
   return (
     <section
@@ -151,23 +153,28 @@ export default function Integrations({ tweaks }: { tweaks: Tweaks }) {
         style={{
           maxWidth: "1100px",
           margin: "0 auto",
-          borderRadius: "32px",
+          borderRadius: "clamp(16px,3vw,32px)",
           border: "1px solid rgba(255,255,255,0.07)",
           background: "rgba(255,255,255,0.02)",
-          minHeight: "540px",
+          minHeight: isMobile ? "auto" : "540px",
           display: "flex",
+          flexDirection: isMobile ? "column" : "row",
           overflow: "hidden",
         }}
       >
         {/* ── LEFT: text ── */}
         <div
           style={{
-            width: "min(44%, 100%)",
+            width: isMobile ? "100%" : "min(44%, 100%)",
             flexShrink: 0,
-            padding: "clamp(32px,5vw,72px) clamp(24px,4vw,48px) clamp(32px,5vw,72px) clamp(24px,5vw,64px)",
+            padding: isMobile
+              ? "48px 28px 40px"
+              : "clamp(32px,5vw,72px) clamp(24px,4vw,48px) clamp(32px,5vw,72px) clamp(24px,5vw,64px)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
+            alignItems: isMobile ? "center" : "flex-start",
+            textAlign: isMobile ? "center" : "left",
             position: "relative",
             zIndex: 10,
           }}
@@ -200,7 +207,7 @@ export default function Integrations({ tweaks }: { tweaks: Tweaks }) {
             }}
           >
             Conecte com as ferramentas
-            <br />que você já usa
+            {isMobile ? " " : <br />}que você já usa
           </h2>
 
           {/* subtitle */}
@@ -211,12 +218,53 @@ export default function Integrations({ tweaks }: { tweaks: Tweaks }) {
               color: "rgba(255,255,255,0.35)",
               lineHeight: 1.7,
               marginBottom: "36px",
-              maxWidth: "340px",
+              maxWidth: isMobile ? "320px" : "340px",
             }}
           >
             Integração nativa com as principais plataformas de CRM,
             calendário e comunicação.
           </p>
+
+          {/* ── ícones visíveis só no mobile ── */}
+          {isMobile && (
+            <div style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "8px",
+              justifyContent: "center",
+              marginBottom: "28px",
+            }}>
+              {[
+                { label: "WhatsApp",   icon: <FaWhatsapp size={18} color="#25D366" /> },
+                { label: "HubSpot",    icon: <SiHubspot  size={18} color="#FF7A59" /> },
+                { label: "Salesforce", icon: <SiSalesforce size={18} color="#00A1E0" /> },
+                { label: "Slack",      icon: <FaSlack    size={18} color="#E01E5A" /> },
+                { label: "Twilio",     icon: <SiTwilio   size={18} color="#F22F46" /> },
+                { label: "Zapier",     icon: <SiZapier   size={18} color="#FF4A00" /> },
+                { label: "Stripe",     icon: <FaStripe   size={18} color="#635BFF" /> },
+                { label: "Google Cal", icon: <SiGooglecalendar size={16} color="#4285F4" /> },
+              ].map((item) => (
+                <div key={item.label} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  padding: "7px 12px",
+                  borderRadius: "100px",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                }}>
+                  {item.icon}
+                  <span style={{
+                    fontSize: "11px",
+                    color: "rgba(255,255,255,0.55)",
+                    fontFamily: "var(--font-maitree), serif",
+                  }}>
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* link */}
           <a
