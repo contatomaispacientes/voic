@@ -195,28 +195,20 @@ export default function Hero({ tweaks }: { tweaks: Tweaks }) {
         style={{
           position: "relative",
           zIndex: 10,
-          marginTop: "68px",
+          marginTop: "56px",
           y: parallaxY,
-          WebkitMaskImage: "linear-gradient(to bottom, black 45%, transparent 100%)",
-          maskImage: "linear-gradient(to bottom, black 45%, transparent 100%)",
+          /* Bottom fade blends into next section */
+          WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
+          maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
         }}
       >
-        {/* Perspective wrapper */}
-        <div
-          style={{
-            perspective: "1200px",
-            WebkitMaskImage:
-              "linear-gradient(to right, transparent 0%, black 7%, black 78%, transparent 100%)",
-            maskImage:
-              "linear-gradient(to right, transparent 0%, black 7%, black 78%, transparent 100%)",
-            marginRight: "-80px",
-            paddingLeft: "80px",
-          }}
-        >
-          {/* Continuous float animation */}
-          <div style={{ animation: "float 6s ease-in-out infinite" }}>
-          <div style={{ transform: "skewX(0.28deg)", position: "relative" }}>
-            <div style={{ transform: "skewX(0.28deg)", position: "relative" }}>
+        {/* Centered container */}
+        <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 24px" }}>
+          {/* Perspective wrapper */}
+          <div style={{ perspective: "1200px" }}>
+            {/* Continuous float animation */}
+            <div style={{ animation: "float 6s ease-in-out infinite" }}>
+            <div style={{ position: "relative" }}>
 
               {/* Purple glow beneath image */}
               <div
@@ -293,9 +285,9 @@ export default function Hero({ tweaks }: { tweaks: Tweaks }) {
                 />
               </div>
             </div>
-          </div>
-          </div>
-        </div>
+            </div>{/* float */}
+          </div>{/* perspective */}
+        </div>{/* centered container */}
       </motion.div>
     </section>
   );
