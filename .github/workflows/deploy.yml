@@ -1,0 +1,67 @@
+name: Deploy Voic.IA → Hostinger
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-and-deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout do código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Configura Node.js 24 com cache npm
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # 3. Instala dependências
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Converte imagens PNG → WebP (reduz 60-80% do tamanho de transferência)
+      - name: Install WebP tools
+        run: sudo apt-get install -y webp
+
+      - name: Convert images to WebP
+        run: |
+          cwebp -q 85 public/assets/voic-hero.png         -o public/assets/voic-hero.webp
+          cwebp -q 85 public/assets/Avanceaidark.png      -o public/assets/Avanceaidark.webp
+          cwebp -q 85 public/assets/CBTmelhorada.png      -o public/assets/CBTmelhorada.webp
+          cwebp -q 85 public/assets/Endostarmelhorada.png -o public/assets/Endostarmelhorada.webp
+          cwebp -q 85 public/assets/Wandahortamelhorada.png -o public/assets/Wandahortamelhorada.webp
+          echo "✅ WebP conversion complete"
+          ls -lh public/assets/*.webp
+
+      # 5. Build estático Next.js → gera pasta out/
+      - name: Build Next.js
+        run: npm run build
+
+      # 6. Deploy via FTPS para Hostinger
+      - name: Deploy via FTPS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+        with:
+          server:   ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          port: 21
+          security: loose
+          local-dir: ./out/
+          server-dir: /public_html/
+          dangerous-clean-slate: true
+          log-level: verbose
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .github/**
