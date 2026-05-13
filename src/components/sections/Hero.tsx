@@ -5,10 +5,12 @@ import Image from "next/image";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { GodRays } from "@paper-design/shaders-react";
 import { Button } from "@/components/ui/button";
+import { useMediaQuery, BREAKPOINTS } from "@/hooks/useMediaQuery";
 import type { Tweaks } from "@/types/tweaks";
 
 export default function Hero({ tweaks }: { tweaks: Tweaks }) {
   const [mounted, setMounted] = useState(false);
+  const isMobile = useMediaQuery(BREAKPOINTS.mobile);
   const { scrollY } = useScroll();
 
   // Parallax: mockup moves up slower than scroll
@@ -195,19 +197,34 @@ export default function Hero({ tweaks }: { tweaks: Tweaks }) {
         style={{
           position: "relative",
           zIndex: 10,
-          marginTop: "56px",
+          marginTop: "68px",
           y: parallaxY,
-          /* Bottom fade blends into next section */
-          WebkitMaskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
-          maskImage: "linear-gradient(to bottom, black 50%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to bottom, black 45%, transparent 100%)",
+          maskImage: "linear-gradient(to bottom, black 45%, transparent 100%)",
         }}
       >
-        {/* Centered container */}
-        <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 24px" }}>
-          {/* Perspective wrapper */}
-          <div style={{ perspective: "1200px" }}>
-            {/* Continuous float animation */}
-            <div style={{ animation: "float 6s ease-in-out infinite" }}>
+        {/* Perspective wrapper:
+            desktop → sangra pelas laterais com mask assimétrico
+            mobile  → centralizado, menor, sem sangramento */}
+        <div
+          style={isMobile ? {
+            /* Mobile: centralizado, contido */
+            maxWidth: "360px",
+            margin: "0 auto",
+            padding: "0 20px",
+            perspective: "800px",
+          } : {
+            /* Desktop: efeito original */
+            perspective: "1200px",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0%, black 7%, black 78%, transparent 100%)",
+            maskImage:
+              "linear-gradient(to right, transparent 0%, black 7%, black 78%, transparent 100%)",
+            marginRight: "-80px",
+            paddingLeft: "80px",
+          }}
+        >
+          <div style={{ animation: `${isMobile ? "float-sm" : "float"} 6s ease-in-out infinite` }}>
             <div style={{ position: "relative" }}>
 
               {/* Purple glow beneath image */}
@@ -241,35 +258,20 @@ export default function Hero({ tweaks }: { tweaks: Tweaks }) {
                 }}
               >
                 {/* Window chrome */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "6px",
-                    padding: "10px 16px",
-                    background: "rgba(255,255,255,0.02)",
-                    borderBottom: "1px solid rgba(255,255,255,0.05)",
-                  }}
-                >
+                <div style={{
+                  display: "flex", alignItems: "center", gap: "6px",
+                  padding: "10px 16px",
+                  background: "rgba(255,255,255,0.02)",
+                  borderBottom: "1px solid rgba(255,255,255,0.05)",
+                }}>
                   {["#ff5f57", "#febc2e", "#28c840"].map((c) => (
-                    <span
-                      key={c}
-                      style={{
-                        width: 9,
-                        height: 9,
-                        borderRadius: "50%",
-                        background: c,
-                      }}
-                    />
+                    <span key={c} style={{ width: 9, height: 9, borderRadius: "50%", background: c }} />
                   ))}
-                  <span
-                    style={{
-                      marginLeft: "10px",
-                      fontSize: "11px",
-                      color: "rgba(255,255,255,0.18)",
-                      fontFamily: "var(--font-maitree), serif",
-                    }}
-                  >
+                  <span style={{
+                    marginLeft: "10px", fontSize: "11px",
+                    color: "rgba(255,255,255,0.18)",
+                    fontFamily: "var(--font-maitree), serif",
+                  }}>
                     Voic.IA — Painel de Agentes
                   </span>
                 </div>
@@ -285,9 +287,8 @@ export default function Hero({ tweaks }: { tweaks: Tweaks }) {
                 />
               </div>
             </div>
-            </div>{/* float */}
-          </div>{/* perspective */}
-        </div>{/* centered container */}
+          </div>
+        </div>
       </motion.div>
     </section>
   );
