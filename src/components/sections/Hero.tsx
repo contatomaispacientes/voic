@@ -96,7 +96,7 @@ export default function Hero({ tweaks }: { tweaks: Tweaks }) {
           zIndex: 10,
           maxWidth: "860px",
           margin: "0 auto",
-          padding: "168px 24px 0",
+          padding: "clamp(100px, 14vw, 168px) 24px 0",
           textAlign: "center",
         }}
       >

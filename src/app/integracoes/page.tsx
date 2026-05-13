@@ -159,12 +159,14 @@ function ApiSection({ accent }: { accent: string }) {
       ref={ref as React.RefObject<HTMLElement>}
       style={{ padding: "80px 24px" }}
     >
-      <div style={{
-        maxWidth: "1100px", margin: "0 auto",
-        display: "grid", gridTemplateColumns: "1fr 1fr", gap: "80px", alignItems: "center",
-        opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(24px)",
-        transition: "all 0.9s cubic-bezier(0.16,1,0.3,1)",
-      }}>
+      <div
+        className="split"
+        style={{
+          maxWidth: "1100px", margin: "0 auto",
+          opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(24px)",
+          transition: "all 0.9s cubic-bezier(0.16,1,0.3,1)",
+        }}
+      >
         {/* Left */}
         <div>
           <span style={{ fontSize: "11px", color: accent, textTransform: "uppercase", letterSpacing: "3px", fontFamily: "var(--font-maitree), serif", display: "block", marginBottom: "16px" }}>
@@ -263,7 +265,7 @@ export default function IntegracoesPage() {
               Escolha as ferramentas certas para o seu fluxo de trabalho.
             </p>
           </motion.div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+          <div className="grid-2" style={{ gap: "16px" }}>
             {CATEGORIES.map((cat, i) => (
               <CategoryCard key={cat.label} cat={cat} index={i} accent={tweaks.accentColor} />
             ))}

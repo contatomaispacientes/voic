@@ -145,7 +145,7 @@ function TimelineStep({
   const isRight = index % 2 !== 0;
 
   return (
-    <div style={{ display: "flex", gap: "40px", alignItems: "flex-start", flexDirection: isRight ? "row-reverse" : "row" }}>
+    <div style={{ display: "flex", gap: "40px", alignItems: "flex-start", flexDirection: "row" }}>
       {/* Step number + line */}
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
         <motion.div
@@ -216,7 +216,7 @@ function TimelineStep({
                 transition={{ type: "spring", stiffness: 300, damping: 30, opacity: { duration: 0.2 } }}
                 style={{ overflow: "hidden" }}
               >
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px", alignItems: "start" }}>
+                <div className="split" style={{ gap: "32px", alignItems: "start" }}>
                   <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.45)", fontFamily: "var(--font-maitree), serif", lineHeight: 1.75 }}>
                     {step.detail}
                   </p>

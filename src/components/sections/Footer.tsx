@@ -13,17 +13,16 @@ export default function Footer({ tweaks: _tweaks }: { tweaks: Tweaks }) {
   return (
     <footer
       style={{
-        padding: "48px 48px 28px",
+        padding: "clamp(32px,5vw,48px) clamp(20px,4vw,48px) 28px",
         borderTop: "1px solid rgba(255,255,255,0.04)",
       }}
     >
       <div
+        className="grid-4"
         style={{
           maxWidth: "1100px",
           margin: "0 auto",
-          display: "grid",
           gridTemplateColumns: "2fr 1fr 1fr 1fr",
-          gap: "40px",
         }}
       >
         <div>

@@ -29,10 +29,10 @@ export default function CTABand({ tweaks }: { tweaks: Tweaks }) {
         style={{
           position: "relative",
           overflow: "hidden",
-          borderRadius: "40px",
+          borderRadius: "clamp(20px,4vw,40px)",
           border: `1px solid ${tweaks.accentColor}28`,
           background: "rgba(10,6,20,0.95)",
-          minHeight: "560px",
+          minHeight: "clamp(400px,60vw,560px)",
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
@@ -75,7 +75,7 @@ export default function CTABand({ tweaks }: { tweaks: Tweaks }) {
         {/* ── Content ── */}
         <div style={{
           position: "relative", zIndex: 10,
-          padding: "80px 32px",
+          padding: "clamp(48px,8vw,80px) clamp(20px,4vw,32px)",
           maxWidth: "760px",
           margin: "0 auto",
           textAlign: "center",

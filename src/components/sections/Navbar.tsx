@@ -37,7 +37,7 @@ export default function Navbar({ tweaks }: { tweaks: Tweaks }) {
         borderBottom: `1px solid ${borderColor}`,
         transition: "background 0.4s ease, border-color 0.4s ease",
       }}>
-        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 40px" }}>
+        <div style={{ maxWidth: "1200px", margin: "0 auto", padding: "0 clamp(16px,4vw,40px)" }}>
 
           {/* Desktop: 3-column grid */}
           <div style={{

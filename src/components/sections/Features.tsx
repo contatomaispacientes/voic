@@ -325,12 +325,8 @@ export default function Features({ tweaks }: { tweaks: Tweaks }) {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.1 }}
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "16px",
-            perspective: "1200px",
-          }}
+          className="grid-3"
+          style={{ perspective: "1200px" }}
         >
           {CARDS.map((card) => (
             <FeatureCard key={card.id} card={card} accent={tweaks.accentColor} />

@@ -221,21 +221,21 @@ export default function HowItWorks({ tweaks }: { tweaks: Tweaks }) {
         </div>
 
         {/* ── Split card ── */}
-        <div style={{
-          borderRadius: "28px",
-          border: "1px solid rgba(255,255,255,0.07)",
-          background: "rgba(255,255,255,0.02)",
-          display: "flex", overflow: "hidden",
-          minHeight: "480px",
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(24px)",
-          transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s",
-        }}>
-
+        <div
+          className="split-4456"
+          style={{
+            borderRadius: "28px",
+            border: "1px solid rgba(255,255,255,0.07)",
+            background: "rgba(255,255,255,0.02)",
+            minHeight: "480px",
+            opacity: visible ? 1 : 0,
+            transform: visible ? "translateY(0)" : "translateY(24px)",
+            transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.9s cubic-bezier(0.16,1,0.3,1) 0.1s",
+          }}
+        >
           {/* Left: text */}
           <div style={{
-            width: "44%", flexShrink: 0,
-            padding: "64px 48px 64px 64px",
+            padding: "clamp(32px, 5vw, 64px) clamp(24px, 4vw, 48px) clamp(32px, 5vw, 64px) clamp(24px, 5vw, 64px)",
             display: "flex", flexDirection: "column", justifyContent: "center",
           }}>
             <h3 style={{

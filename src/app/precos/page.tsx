@@ -197,7 +197,7 @@ function ComparisonTable({ accent }: { accent: string }) {
         </motion.div>
 
         <div style={{
-          borderRadius: "20px", overflow: "hidden",
+          borderRadius: "20px", overflowX: "auto",
           border: "1px solid rgba(255,255,255,0.07)",
           opacity: visible ? 1 : 0, transform: visible ? "translateY(0)" : "translateY(24px)",
           transition: "all 0.9s cubic-bezier(0.16,1,0.3,1)",
@@ -337,7 +337,7 @@ export default function PrecosPage() {
 
       {/* Plan cards */}
       <section style={{ padding: "48px 24px 80px" }}>
-        <div style={{ maxWidth: "960px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+        <div className="grid-3" style={{ maxWidth: "960px", margin: "0 auto" }}>
           {PLANS.map((plan, i) => (
             <PlanCard key={plan.name} plan={plan} annual={annual} index={i} accent={tweaks.accentColor} />
           ))}

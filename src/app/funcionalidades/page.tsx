@@ -347,7 +347,7 @@ function FeatureSplit({ feature, index, accent }: { feature: typeof FEATURES[num
 
   return (
     <section ref={ref as React.RefObject<HTMLElement>} style={{ padding: "80px 24px" }}>
-      <div style={{ maxWidth: "1100px", margin: "0 auto", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "80px", alignItems: "center" }}>
+      <div className="split" style={{ maxWidth: "1100px", margin: "0 auto" }}>
         {feature.flip ? <>{visualSide}{textSide}</> : <>{textSide}{visualSide}</>}
       </div>
     </section>
@@ -399,7 +399,7 @@ function IndustrySection({ accent }: { accent: string }) {
             Agentes de voz adaptáveis a qualquer tipo de operação.
           </p>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "14px" }}>
+        <div className="grid-3" style={{ gap: "14px" }}>
           {INDUSTRIES.map((ind, i) => (
             <motion.div key={ind.label}
               initial={{ opacity: 0, y: 28, filter: "blur(4px)" }}
@@ -452,7 +452,8 @@ function ComparisonSection({ accent }: { accent: string }) {
           </h2>
         </div>
 
-        <div style={{ borderRadius: "20px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.07)", opacity: visible ? 1 : 0, transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1) 0.2s" }}>
+        <div style={{ borderRadius: "20px", border: "1px solid rgba(255,255,255,0.07)", opacity: visible ? 1 : 0, transition: "opacity 0.9s cubic-bezier(0.16,1,0.3,1) 0.2s", overflowX: "auto" }}>
+          <div style={{ minWidth: "540px" }}>
           {/* Header */}
           <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr 1fr", background: "rgba(255,255,255,0.03)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
             <div style={{ padding: "14px 24px" }} />
@@ -486,6 +487,7 @@ function ComparisonSection({ accent }: { accent: string }) {
               </div>
             </motion.div>
           ))}
+          </div>{/* minWidth wrapper */}
         </div>
       </div>
     </section>
@@ -515,7 +517,7 @@ export default function FuncionalidadesPage() {
 
       {/* Stats */}
       <section style={{ padding: "72px 24px" }}>
-        <div style={{ maxWidth: "1100px", margin: "0 auto", display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+        <div className="grid-4" style={{ maxWidth: "1100px", margin: "0 auto" }}>
           {STATS.map((s, i) => <StatCard key={s.label} stat={s} accent={tweaks.accentColor} index={i} />)}
         </div>
       </section>

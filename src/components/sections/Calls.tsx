@@ -151,12 +151,14 @@ export default function Calls({ tweaks }: { tweaks: Tweaks }) {
       <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "80px" }}>
 
         {/* ── Part 1: Inbound / Outbound demo ── */}
-        <div style={{
-          opacity: visible ? 1 : 0,
-          transform: visible ? "translateY(0)" : "translateY(24px)",
-          transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
-          display: "grid", gridTemplateColumns: "1fr 1fr", gap: "80px", alignItems: "center",
-        }}>
+        <div
+          className="split"
+          style={{
+            opacity: visible ? 1 : 0,
+            transform: visible ? "translateY(0)" : "translateY(24px)",
+            transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
+          }}
+        >
           {/* Left text */}
           <div>
             <span style={{
@@ -312,7 +314,7 @@ export default function Calls({ tweaks }: { tweaks: Tweaks }) {
             </p>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "12px" }}>
+          <div className="grid-3" style={{ gap: "12px" }}>
             {ACTIONS.map((action, i) => (
               <ActionCard
                 key={action.title}

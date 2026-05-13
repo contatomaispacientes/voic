@@ -162,9 +162,9 @@ export default function Integrations({ tweaks }: { tweaks: Tweaks }) {
         {/* ── LEFT: text ── */}
         <div
           style={{
-            width: "44%",
+            width: "min(44%, 100%)",
             flexShrink: 0,
-            padding: "72px 48px 72px 64px",
+            padding: "clamp(32px,5vw,72px) clamp(24px,4vw,48px) clamp(32px,5vw,72px) clamp(24px,5vw,64px)",
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
@@ -250,8 +250,9 @@ export default function Integrations({ tweaks }: { tweaks: Tweaks }) {
           </a>
         </div>
 
-        {/* ── RIGHT: orbit ── */}
+        {/* ── RIGHT: orbit — hidden on mobile ── */}
         <div
+          className="hide-mobile"
           style={{
             flex: 1,
             position: "relative",

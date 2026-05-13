@@ -229,13 +229,7 @@ export default function Pricing({ tweaks }: { tweaks: Tweaks }) {
         accentColor={tweaks.accentColor}
       />
 
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(3, 1fr)",
-        gap: "16px",
-        maxWidth: "960px",
-        margin: "0 auto",
-      }}>
+      <div className="grid-3" style={{ maxWidth: "960px", margin: "0 auto" }}>
         {PLANS.map((plan, i) => (
           <PlanCard
             key={plan.name}
