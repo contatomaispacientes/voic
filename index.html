@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voic.IA — Agentes de Voz com Inteligência Artificial</title>
+  <link href="https://fonts.googleapis.com/css2?family=Kadwa:wght@400;700&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Maitree:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Maitree', serif;
+      background: #06040e;
+      color: #fff;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: rgba(139, 92, 246, 0.2); }
+    @keyframes wave {
+      0% { height: 6px; }
+      100% { height: 30px; }
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #06040e; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+  </style>
+</head>
+<body>
+
+<div id="app-root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+
+// ─── tweaks-panel ────────────────────────────────────────────────────────────
+
+const __TWEAKS_STYLE = `
+  .twk-panel{position:fixed;right:16px;bottom:16px;z-index:2147483646;width:280px;
+    max-height:calc(100vh - 32px);display:flex;flex-direction:column;
+    transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom right;
+    background:rgba(250,249,247,.78);color:#29261b;
+    -webkit-backdrop-filter:blur(24px) saturate(160%);backdrop-filter:blur(24px) saturate(160%);
+    border:.5px solid rgba(255,255,255,.6);border-radius:14px;
+    box-shadow:0 1px 0 rgba(255,255,255,.5) inset,0 12px 40px rgba(0,0,0,.18);
+    font:11.5px/1.4 ui-sans-serif,system-ui,-apple-system,sans-serif;overflow:hidden}
+  .twk-hd{display:flex;align-items:center;justify-content:space-between;
+    padding:10px 8px 10px 14px;cursor:move;user-select:none}
+  .twk-hd b{font-size:12px;font-weight:600;letter-spacing:.01em}
+  .twk-x{appearance:none;border:0;background:transparent;color:rgba(41,38,27,.55);
+    width:22px;height:22px;border-radius:6px;cursor:default;font-size:13px;line-height:1}
+  .twk-x:hover{background:rgba(0,0,0,.06);color:#29261b}
+  .twk-body{padding:2px 14px 14px;display:flex;flex-direction:column;gap:10px;
+    overflow-y:auto;overflow-x:hidden;min-height:0;
+    scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.15) transparent}
+  .twk-body::-webkit-scrollbar{width:8px}
+  .twk-body::-webkit-scrollbar-track{background:transparent;margin:2px}
+  .twk-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,.15);border-radius:4px;
+    border:2px solid transparent;background-clip:content-box}
+  .twk-body::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.25);
+    border:2px solid transparent;background-clip:content-box}
+  .twk-row{display:flex;flex-direction:column;gap:5px}
+  .twk-row-h{flex-direction:row;align-items:center;justify-content:space-between;gap:10px}
+  .twk-lbl{display:flex;justify-content:space-between;align-items:baseline;
+    color:rgba(41,38,27,.72)}
+  .twk-lbl>span:first-child{font-weight:500}
+  .twk-val{color:rgba(41,38,27,.5);font-variant-numeric:tabular-nums}
+  .twk-sect{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    color:rgba(41,38,27,.45);padding:10px 0 0}
+  .twk-sect:first-child{padding-top:0}
+  .twk-field{appearance:none;box-sizing:border-box;width:100%;min-width:0;height:26px;padding:0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;
+    background:rgba(255,255,255,.6);color:inherit;font:inherit;outline:none}
+  .twk-field:focus{border-color:rgba(0,0,0,.25);background:rgba(255,255,255,.85)}
+  select.twk-field{padding-right:22px;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='rgba(0,0,0,.5)' d='M0 0h10L5 6z'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center}
+  .twk-slider{appearance:none;-webkit-appearance:none;width:100%;height:4px;margin:6px 0;
+    border-radius:999px;background:rgba(0,0,0,.12);outline:none}
+  .twk-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+    width:14px;height:14px;border-radius:50%;background:#fff;
+    border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+    background:#fff;border:.5px solid rgba(0,0,0,.12);box-shadow:0 1px 3px rgba(0,0,0,.2);cursor:default}
+  .twk-seg{position:relative;display:flex;padding:2px;border-radius:8px;
+    background:rgba(0,0,0,.06);user-select:none}
+  .twk-seg-thumb{position:absolute;top:2px;bottom:2px;border-radius:6px;
+    background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.12);
+    transition:left .15s cubic-bezier(.3,.7,.4,1),width .15s}
+  .twk-seg.dragging .twk-seg-thumb{transition:none}
+  .twk-seg button{appearance:none;position:relative;z-index:1;flex:1;border:0;
+    background:transparent;color:inherit;font:inherit;font-weight:500;min-height:22px;
+    border-radius:6px;cursor:default;padding:4px 6px;line-height:1.2;
+    overflow-wrap:anywhere}
+  .twk-toggle{position:relative;width:32px;height:18px;border:0;border-radius:999px;
+    background:rgba(0,0,0,.15);transition:background .15s;cursor:default;padding:0}
+  .twk-toggle[data-on="1"]{background:#34c759}
+  .twk-toggle i{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .twk-toggle[data-on="1"] i{transform:translateX(14px)}
+  .twk-num{display:flex;align-items:center;box-sizing:border-box;min-width:0;height:26px;padding:0 0 0 8px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:7px;background:rgba(255,255,255,.6)}
+  .twk-num-lbl{font-weight:500;color:rgba(41,38,27,.6);cursor:ew-resize;
+    user-select:none;padding-right:8px}
+  .twk-num input{flex:1;min-width:0;height:100%;border:0;background:transparent;
+    font:inherit;font-variant-numeric:tabular-nums;text-align:right;padding:0 8px 0 0;
+    outline:none;color:inherit;-moz-appearance:textfield}
+  .twk-num input::-webkit-inner-spin-button,.twk-num input::-webkit-outer-spin-button{
+    -webkit-appearance:none;margin:0}
+  .twk-num-unit{padding-right:8px;color:rgba(41,38,27,.45)}
+  .twk-btn{appearance:none;height:26px;padding:0 12px;border:0;border-radius:7px;
+    background:rgba(0,0,0,.78);color:#fff;font:inherit;font-weight:500;cursor:default}
+  .twk-btn:hover{background:rgba(0,0,0,.88)}
+  .twk-btn.secondary{background:rgba(0,0,0,.06);color:inherit}
+  .twk-btn.secondary:hover{background:rgba(0,0,0,.1)}
+  .twk-swatch{appearance:none;-webkit-appearance:none;width:56px;height:22px;
+    border:.5px solid rgba(0,0,0,.1);border-radius:6px;padding:0;cursor:default;
+    background:transparent;flex-shrink:0}
+  .twk-swatch::-webkit-color-swatch-wrapper{padding:0}
+  .twk-swatch::-webkit-color-swatch{border:0;border-radius:5.5px}
+  .twk-swatch::-moz-color-swatch{border:0;border-radius:5.5px}
+  .twk-chips{display:flex;gap:6px}
+  .twk-chip{position:relative;appearance:none;flex:1;min-width:0;height:46px;
+    padding:0;border:0;border-radius:6px;overflow:hidden;cursor:default;
+    box-shadow:0 0 0 .5px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.06);
+    transition:transform .12s cubic-bezier(.3,.7,.4,1),box-shadow .12s}
+  .twk-chip:hover{transform:translateY(-1px);
+    box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 4px 10px rgba(0,0,0,.12)}
+  .twk-chip[data-on="1"]{box-shadow:0 0 0 1.5px rgba(0,0,0,.85),
+    0 2px 6px rgba(0,0,0,.15)}
+  .twk-chip>span{position:absolute;top:0;bottom:0;right:0;width:34%;
+    display:flex;flex-direction:column;box-shadow:-1px 0 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i{flex:1;box-shadow:0 -1px 0 rgba(0,0,0,.1)}
+  .twk-chip>span>i:first-child{box-shadow:none}
+  .twk-chip svg{position:absolute;top:6px;left:6px;width:13px;height:13px;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,.3))}
+`;
+
+function useTweaks(defaults) {
+  const [values, setValues] = React.useState(defaults);
+  const setTweak = React.useCallback((keyOrEdits, val) => {
+    const edits = typeof keyOrEdits === 'object' && keyOrEdits !== null
+      ? keyOrEdits : { [keyOrEdits]: val };
+    setValues((prev) => ({ ...prev, ...edits }));
+    window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*');
+    window.dispatchEvent(new CustomEvent('tweakchange', { detail: edits }));
+  }, []);
+  return [values, setTweak];
+}
+
+function TweaksPanel({ title = 'Tweaks', noDeckControls = false, children }) {
+  const [open, setOpen] = React.useState(false);
+  const dragRef = React.useRef(null);
+  const hasDeckStage = React.useMemo(
+    () => typeof document !== 'undefined' && !!document.querySelector('deck-stage'),
+    [],
+  );
+  const [railEnabled, setRailEnabled] = React.useState(
+    () => hasDeckStage && !!document.querySelector('deck-stage')?._railEnabled,
+  );
+  React.useEffect(() => {
+    if (!hasDeckStage || railEnabled) return undefined;
+    const onMsg = (e) => {
+      if (e.data && e.data.type === '__omelette_rail_enabled') setRailEnabled(true);
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, [hasDeckStage, railEnabled]);
+  const [railVisible, setRailVisible] = React.useState(() => {
+    try { return localStorage.getItem('deck-stage.railVisible') !== '0'; } catch (e) { return true; }
+  });
+  const toggleRail = (on) => {
+    setRailVisible(on);
+    window.postMessage({ type: '__deck_rail_visible', on }, '*');
+  };
+  const offsetRef = React.useRef({ x: 16, y: 16 });
+  const PAD = 16;
+
+  const clampToViewport = React.useCallback(() => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const w = panel.offsetWidth, h = panel.offsetHeight;
+    const maxRight = Math.max(PAD, window.innerWidth - w - PAD);
+    const maxBottom = Math.max(PAD, window.innerHeight - h - PAD);
+    offsetRef.current = {
+      x: Math.min(maxRight, Math.max(PAD, offsetRef.current.x)),
+      y: Math.min(maxBottom, Math.max(PAD, offsetRef.current.y)),
+    };
+    panel.style.right = offsetRef.current.x + 'px';
+    panel.style.bottom = offsetRef.current.y + 'px';
+  }, []);
+
+  React.useEffect(() => {
+    if (!open) return;
+    clampToViewport();
+    if (typeof ResizeObserver === 'undefined') {
+      window.addEventListener('resize', clampToViewport);
+      return () => window.removeEventListener('resize', clampToViewport);
+    }
+    const ro = new ResizeObserver(clampToViewport);
+    ro.observe(document.documentElement);
+    return () => ro.disconnect();
+  }, [open, clampToViewport]);
+
+  React.useEffect(() => {
+    const onMsg = (e) => {
+      const t = e?.data?.type;
+      if (t === '__activate_edit_mode') setOpen(true);
+      else if (t === '__deactivate_edit_mode') setOpen(false);
+    };
+    window.addEventListener('message', onMsg);
+    window.parent.postMessage({ type: '__edit_mode_available' }, '*');
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+
+  const dismiss = () => {
+    setOpen(false);
+    window.parent.postMessage({ type: '__edit_mode_dismissed' }, '*');
+  };
+
+  const onDragStart = (e) => {
+    const panel = dragRef.current;
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    const sx = e.clientX, sy = e.clientY;
+    const startRight = window.innerWidth - r.right;
+    const startBottom = window.innerHeight - r.bottom;
+    const move = (ev) => {
+      offsetRef.current = {
+        x: startRight - (ev.clientX - sx),
+        y: startBottom - (ev.clientY - sy),
+      };
+      clampToViewport();
+    };
+    const up = () => {
+      window.removeEventListener('mousemove', move);
+      window.removeEventListener('mouseup', up);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
+
+  if (!open) return null;
+  return (
+    <>
+      <style>{__TWEAKS_STYLE}</style>
+      <div ref={dragRef} className="twk-panel" data-noncommentable=""
+           style={{ right: offsetRef.current.x, bottom: offsetRef.current.y }}>
+        <div className="twk-hd" onMouseDown={onDragStart}>
+          <b>{title}</b>
+          <button className="twk-x" aria-label="Close tweaks"
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={dismiss}>✕</button>
+        </div>
+        <div className="twk-body">
+          {children}
+          {hasDeckStage && railEnabled && !noDeckControls && (
+            <TweakSection label="Deck">
+              <TweakToggle label="Thumbnail rail" value={railVisible} onChange={toggleRail} />
+            </TweakSection>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+function TweakSection({ label, children }) {
+  return (
+    <>
+      <div className="twk-sect">{label}</div>
+      {children}
+    </>
+  );
+}
+
+function TweakRow({ label, value, children, inline = false }) {
+  return (
+    <div className={inline ? 'twk-row twk-row-h' : 'twk-row'}>
+      <div className="twk-lbl">
+        <span>{label}</span>
+        {value != null && <span className="twk-val">{value}</span>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function TweakSlider({ label, value, min = 0, max = 100, step = 1, unit = '', onChange }) {
+  return (
+    <TweakRow label={label} value={`${value}${unit}`}>
+      <input type="range" className="twk-slider" min={min} max={max} step={step}
+             value={value} onChange={(e) => onChange(Number(e.target.value))} />
+    </TweakRow>
+  );
+}
+
+function TweakToggle({ label, value, onChange }) {
+  return (
+    <div className="twk-row twk-row-h">
+      <div className="twk-lbl"><span>{label}</span></div>
+      <button type="button" className="twk-toggle" data-on={value ? '1' : '0'}
+              role="switch" aria-checked={!!value}
+              onClick={() => onChange(!value)}><i /></button>
+    </div>
+  );
+}
+
+function TweakRadio({ label, value, options, onChange }) {
+  const trackRef = React.useRef(null);
+  const [dragging, setDragging] = React.useState(false);
+  const valueRef = React.useRef(value);
+  valueRef.current = value;
+
+  const labelLen = (o) => String(typeof o === 'object' ? o.label : o).length;
+  const maxLen = options.reduce((m, o) => Math.max(m, labelLen(o)), 0);
+  const fitsAsSegments = maxLen <= ({ 2: 16, 3: 10 }[options.length] ?? 0);
+  if (!fitsAsSegments) {
+    const resolve = (s) => {
+      const m = options.find((o) => String(typeof o === 'object' ? o.value : o) === s);
+      return m === undefined ? s : typeof m === 'object' ? m.value : m;
+    };
+    return <TweakSelect label={label} value={value} options={options}
+                        onChange={(s) => onChange(resolve(s))} />;
+  }
+  const opts = options.map((o) => (typeof o === 'object' ? o : { value: o, label: o }));
+  const idx = Math.max(0, opts.findIndex((o) => o.value === value));
+  const n = opts.length;
+
+  const segAt = (clientX) => {
+    const r = trackRef.current.getBoundingClientRect();
+    const inner = r.width - 4;
+    const i = Math.floor(((clientX - r.left - 2) / inner) * n);
+    return opts[Math.max(0, Math.min(n - 1, i))].value;
+  };
+
+  const onPointerDown = (e) => {
+    setDragging(true);
+    const v0 = segAt(e.clientX);
+    if (v0 !== valueRef.current) onChange(v0);
+    const move = (ev) => {
+      if (!trackRef.current) return;
+      const v = segAt(ev.clientX);
+      if (v !== valueRef.current) onChange(v);
+    };
+    const up = () => {
+      setDragging(false);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+
+  return (
+    <TweakRow label={label}>
+      <div ref={trackRef} role="radiogroup" onPointerDown={onPointerDown}
+           className={dragging ? 'twk-seg dragging' : 'twk-seg'}>
+        <div className="twk-seg-thumb"
+             style={{ left: `calc(2px + ${idx} * (100% - 4px) / ${n})`,
+                      width: `calc((100% - 4px) / ${n})` }} />
+        {opts.map((o) => (
+          <button key={o.value} type="button" role="radio" aria-checked={o.value === value}>
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakSelect({ label, value, options, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <select className="twk-field" value={value} onChange={(e) => onChange(e.target.value)}>
+        {options.map((o) => {
+          const v = typeof o === 'object' ? o.value : o;
+          const l = typeof o === 'object' ? o.label : o;
+          return <option key={v} value={v}>{l}</option>;
+        })}
+      </select>
+    </TweakRow>
+  );
+}
+
+function TweakText({ label, value, placeholder, onChange }) {
+  return (
+    <TweakRow label={label}>
+      <input className="twk-field" type="text" value={value} placeholder={placeholder}
+             onChange={(e) => onChange(e.target.value)} />
+    </TweakRow>
+  );
+}
+
+function TweakNumber({ label, value, min, max, step = 1, unit = '', onChange }) {
+  const clamp = (n) => {
+    if (min != null && n < min) return min;
+    if (max != null && n > max) return max;
+    return n;
+  };
+  const startRef = React.useRef({ x: 0, val: 0 });
+  const onScrubStart = (e) => {
+    e.preventDefault();
+    startRef.current = { x: e.clientX, val: value };
+    const decimals = (String(step).split('.')[1] || '').length;
+    const move = (ev) => {
+      const dx = ev.clientX - startRef.current.x;
+      const raw = startRef.current.val + dx * step;
+      const snapped = Math.round(raw / step) * step;
+      onChange(clamp(Number(snapped.toFixed(decimals))));
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  return (
+    <div className="twk-num">
+      <span className="twk-num-lbl" onPointerDown={onScrubStart}>{label}</span>
+      <input type="number" value={value} min={min} max={max} step={step}
+             onChange={(e) => onChange(clamp(Number(e.target.value)))} />
+      {unit && <span className="twk-num-unit">{unit}</span>}
+    </div>
+  );
+}
+
+function __twkIsLight(hex) {
+  const h = String(hex).replace('#', '');
+  const x = h.length === 3 ? h.replace(/./g, (c) => c + c) : h.padEnd(6, '0');
+  const n = parseInt(x.slice(0, 6), 16);
+  if (Number.isNaN(n)) return true;
+  const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+  return r * 299 + g * 587 + b * 114 > 148000;
+}
+
+const __TwkCheck = ({ light }) => (
+  <svg viewBox="0 0 14 14" aria-hidden="true">
+    <path d="M3 7.2 5.8 10 11 4.2" fill="none" strokeWidth="2.2"
+          strokeLinecap="round" strokeLinejoin="round"
+          stroke={light ? 'rgba(0,0,0,.78)' : '#fff'} />
+  </svg>
+);
+
+function TweakColor({ label, value, options, onChange }) {
+  if (!options || !options.length) {
+    return (
+      <div className="twk-row twk-row-h">
+        <div className="twk-lbl"><span>{label}</span></div>
+        <input type="color" className="twk-swatch" value={value}
+               onChange={(e) => onChange(e.target.value)} />
+      </div>
+    );
+  }
+  const key = (o) => String(JSON.stringify(o)).toLowerCase();
+  const cur = key(value);
+  return (
+    <TweakRow label={label}>
+      <div className="twk-chips" role="radiogroup">
+        {options.map((o, i) => {
+          const colors = Array.isArray(o) ? o : [o];
+          const [hero, ...rest] = colors;
+          const sup = rest.slice(0, 4);
+          const on = key(o) === cur;
+          return (
+            <button key={i} type="button" className="twk-chip" role="radio"
+                    aria-checked={on} data-on={on ? '1' : '0'}
+                    aria-label={colors.join(', ')} title={colors.join(' · ')}
+                    style={{ background: hero }}
+                    onClick={() => onChange(o)}>
+              {sup.length > 0 && (
+                <span>
+                  {sup.map((c, j) => <i key={j} style={{ background: c }} />)}
+                </span>
+              )}
+              {on && <__TwkCheck light={__twkIsLight(hero)} />}
+            </button>
+          );
+        })}
+      </div>
+    </TweakRow>
+  );
+}
+
+function TweakButton({ label, onClick, secondary = false }) {
+  return (
+    <button type="button" className={secondary ? 'twk-btn secondary' : 'twk-btn'}
+            onClick={onClick}>{label}</button>
+  );
+}
+
+// ─── Navbar ──────────────────────────────────────────────────────────────────
+
+function Navbar({ tweaks }) {
+  const [scrolled, setScrolled] = React.useState(false);
+  React.useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', fn);
+    return () => window.removeEventListener('scroll', fn);
+  }, []);
+
+  return (
+    <nav style={{
+      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+      padding: scrolled ? '14px 48px' : '20px 48px',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      backdropFilter: 'blur(24px) saturate(140%)',
+      background: scrolled ? 'rgba(6, 4, 14, 0.85)' : 'transparent',
+      borderBottom: scrolled ? '1px solid rgba(255,255,255,0.04)' : '1px solid transparent',
+      transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff' }}>
+        <img src="assets/logo-voic.svg" alt="Voic" style={{ height: '28px', filter: 'brightness(0) invert(1)' }} />
+      </div>
+      <div style={{ display: 'flex', gap: '36px', alignItems: 'center' }}>
+        {['Funcionalidades', 'Como funciona', 'Integrações', 'Preços'].map(l => (
+          <a key={l} href={`#${l.toLowerCase().replace(/ /g, '-').normalize('NFD').replace(/[̀-ͯ]/g, '')}`}
+            style={{
+              color: 'rgba(255,255,255,0.5)', fontSize: '13px', fontWeight: 400,
+              textDecoration: 'none', cursor: 'pointer',
+              transition: 'color 0.25s ease',
+              fontFamily: "'Maitree', serif",
+              letterSpacing: '0.2px',
+            }}
+            onMouseEnter={e => e.target.style.color = '#fff'}
+            onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.5)'}
+          >{l}</a>
+        ))}
+        <button style={{
+          padding: '9px 22px', borderRadius: '100px', fontSize: '13px', fontWeight: 500,
+          background: 'transparent',
+          color: 'rgba(255,255,255,0.8)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          cursor: 'pointer', transition: 'all 0.3s ease',
+          fontFamily: "'Maitree', serif",
+        }}
+          onMouseEnter={e => { e.target.style.background = 'rgba(255,255,255,0.06)'; e.target.style.borderColor = 'rgba(255,255,255,0.25)'; }}
+          onMouseLeave={e => { e.target.style.background = 'transparent'; e.target.style.borderColor = 'rgba(255,255,255,0.15)'; }}
+        >Agendar demonstração</button>
+      </div>
+    </nav>
+  );
+}
+
+// ─── Hero ────────────────────────────────────────────────────────────────────
+
+function HeroSection({ tweaks }) {
+  const [visible, setVisible] = React.useState(false);
+  React.useEffect(() => { setTimeout(() => setVisible(true), 150); }, []);
+
+  const trans = (d) => ({
+    opacity: visible ? 1 : 0,
+    transform: visible ? 'translateY(0)' : 'translateY(24px)',
+    transition: `all 0.9s cubic-bezier(0.16, 1, 0.3, 1) ${d}s`,
+  });
+
+  return (
+    <section style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      padding: '160px 48px 100px', position: 'relative', overflow: 'hidden',
+    }}>
+      <div style={{
+        position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)',
+        width: '700px', height: '700px', borderRadius: '50%',
+        background: `radial-gradient(circle, ${tweaks.accentColor}08 0%, transparent 65%)`,
+        pointerEvents: 'none',
+      }}></div>
+
+      <div style={{
+        ...trans(0.1),
+        padding: '6px 16px', borderRadius: '100px', fontSize: '12px',
+        fontFamily: "'Maitree', serif",
+        background: 'rgba(255,255,255,0.04)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        color: 'rgba(255,255,255,0.5)', marginBottom: '36px',
+        display: 'flex', alignItems: 'center', gap: '8px',
+        letterSpacing: '0.3px',
+      }}>
+        <span style={{
+          width: '6px', height: '6px', borderRadius: '50%',
+          background: tweaks.accentColor, opacity: 0.8,
+        }}></span>
+        Agentes de voz IA — disponíveis 24/7
+      </div>
+
+      <h1 style={{
+        ...trans(0.2),
+        fontFamily: "'Kadwa', serif",
+        fontSize: '68px',
+        fontWeight: 400, textAlign: 'center', lineHeight: 1.08,
+        maxWidth: '760px', letterSpacing: '-0.5px', color: '#fff',
+        textWrap: 'balance',
+      }}>
+        Automatize suas{' '}
+        <span style={{
+          color: tweaks.accentColor,
+          fontStyle: 'italic',
+        }}>chamadas</span>{' '}
+        com inteligência artificial
+      </h1>
+
+      <p style={{
+        ...trans(0.35),
+        fontFamily: "'Libre Baskerville', serif",
+        fontSize: '18px', color: 'rgba(255,255,255,0.4)', textAlign: 'center',
+        maxWidth: '520px', lineHeight: 1.7, margin: '32px 0 44px',
+        textWrap: 'pretty', fontWeight: 400,
+      }}>
+        Plataforma de agentes de voz para chamadas de entrada e saída, agendamentos e ações automatizadas.
+      </p>
+
+      <div style={{
+        ...trans(0.45),
+        display: 'flex', gap: '14px', alignItems: 'center',
+      }}>
+        <button style={{
+          padding: '13px 32px', borderRadius: '100px', fontSize: '14px', fontWeight: 500,
+          background: '#fff', color: '#080512',
+          border: 'none', cursor: 'pointer',
+          fontFamily: "'Maitree', serif",
+          transition: 'all 0.3s ease',
+          letterSpacing: '0.2px',
+        }}
+          onMouseEnter={e => { e.target.style.transform = 'translateY(-1px)'; e.target.style.boxShadow = '0 8px 32px rgba(255,255,255,0.08)'; }}
+          onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none'; }}
+        >Agendar demonstração</button>
+        <button style={{
+          padding: '13px 32px', borderRadius: '100px', fontSize: '14px', fontWeight: 400,
+          background: 'transparent', color: 'rgba(255,255,255,0.6)',
+          border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer',
+          fontFamily: "'Maitree', serif",
+          transition: 'all 0.3s ease',
+        }}
+          onMouseEnter={e => { e.target.style.borderColor = 'rgba(255,255,255,0.2)'; e.target.style.color = '#fff'; }}
+          onMouseLeave={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.color = 'rgba(255,255,255,0.6)'; }}
+        >Ver funcionalidades</button>
+      </div>
+
+      <div style={{
+        ...trans(0.65),
+        marginTop: '72px', width: '100%', maxWidth: '960px',
+        background: 'rgba(255,255,255,0.02)',
+        borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)',
+        overflow: 'hidden',
+        boxShadow: '0 32px 80px rgba(0,0,0,0.3)',
+      }}>
+        <DashboardPreview tweaks={tweaks} />
+      </div>
+    </section>
+  );
+}
+
+function DashboardPreview({ tweaks }) {
+  return (
+    <div>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '12px 20px', borderBottom: '1px solid rgba(255,255,255,0.04)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '5px' }}>
+            <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#ff5f57' }}></span>
+            <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#febc2e' }}></span>
+            <span style={{ width: 9, height: 9, borderRadius: '50%', background: '#28c840' }}></span>
+          </div>
+          <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', marginLeft: '10px', fontFamily: "'Maitree', serif" }}>Voic.IA — Painel de Agentes</span>
+        </div>
+      </div>
+      <div style={{ display: 'flex', minHeight: '300px' }}>
+        <div style={{
+          width: '180px', borderRight: '1px solid rgba(255,255,255,0.04)',
+          padding: '16px 10px', display: 'flex', flexDirection: 'column', gap: '2px',
+        }}>
+          {[
+            { label: 'Dashboard', active: true },
+            { label: 'Chamadas' },
+            { label: 'Agentes' },
+            { label: 'Agendamentos' },
+            { label: 'Integrações' },
+            { label: 'Configurações' },
+          ].map(item => (
+            <div key={item.label} style={{
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '7px 12px', borderRadius: '6px', fontSize: '12px',
+              fontFamily: "'Maitree', serif",
+              color: item.active ? '#fff' : 'rgba(255,255,255,0.3)',
+              background: item.active ? 'rgba(255,255,255,0.05)' : 'transparent',
+            }}>{item.label}</div>
+          ))}
+        </div>
+        <div style={{ flex: 1, padding: '18px 22px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+            {[
+              { label: 'Chamadas hoje', value: '1.247', change: '+12.5%' },
+              { label: 'Taxa de resolução', value: '94.8%', change: '+3.2%' },
+              { label: 'Agendamentos', value: '186', change: '+28.4%' },
+            ].map(stat => (
+              <div key={stat.label} style={{
+                padding: '14px', borderRadius: '10px',
+                background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)',
+              }}>
+                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.3)', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: "'Maitree', serif" }}>{stat.label}</div>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <span style={{ fontSize: '22px', fontWeight: 700, color: '#fff', fontFamily: "'Libre Baskerville', serif" }}>{stat.value}</span>
+                  <span style={{ fontSize: '11px', color: '#34d399', fontWeight: 500, fontFamily: "'Maitree', serif" }}>{stat.change}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div style={{
+            padding: '16px', borderRadius: '10px',
+            background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)',
+            height: '130px', position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', marginBottom: '10px', fontFamily: "'Maitree', serif" }}>Volume de chamadas — últimos 7 dias</div>
+            <svg viewBox="0 0 500 80" style={{ width: '100%', height: '70px' }}>
+              <defs>
+                <linearGradient id="cg2" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={tweaks.accentColor} stopOpacity="0.2" />
+                  <stop offset="100%" stopColor={tweaks.accentColor} stopOpacity="0" />
+                </linearGradient>
+              </defs>
+              <path d="M0,60 C60,55 80,40 140,35 C200,30 220,50 280,25 C340,0 380,20 420,15 C460,10 480,18 500,12 L500,80 L0,80 Z" fill="url(#cg2)" />
+              <path d="M0,60 C60,55 80,40 140,35 C200,30 220,50 280,25 C340,0 380,20 420,15 C460,10 480,18 500,12" fill="none" stroke={tweaks.accentColor} strokeWidth="1.5" strokeOpacity="0.6" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Sections helpers ─────────────────────────────────────────────────────────
+
+function useScrollReveal(threshold = 0.12) {
+  const ref = React.useRef(null);
+  const [visible, setVisible] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } }, { threshold });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
+
+function SectionHeader({ label, title, subtitle, vis, tweaks }) {
+  return (
+    <div style={{
+      textAlign: 'center', marginBottom: '64px',
+      opacity: vis ? 1 : 0, transform: vis ? 'translateY(0)' : 'translateY(24px)',
+      transition: 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+    }}>
+      <span style={{
+        fontSize: '12px', fontWeight: 400, color: tweaks.accentColor,
+        textTransform: 'uppercase', letterSpacing: '3px',
+        fontFamily: "'Maitree', serif",
+      }}>{label}</span>
+      <h2 style={{
+        fontFamily: "'Kadwa', serif",
+        fontSize: '44px', fontWeight: 400, color: '#fff',
+        lineHeight: 1.12, margin: '18px 0 0', letterSpacing: '-0.3px',
+        textWrap: 'balance',
+      }} dangerouslySetInnerHTML={{ __html: title }}></h2>
+      {subtitle && (
+        <p style={{
+          fontFamily: "'Libre Baskerville', serif",
+          fontSize: '16px', color: 'rgba(255,255,255,0.35)', maxWidth: '460px',
+          margin: '16px auto 0', lineHeight: 1.7, fontWeight: 400,
+        }}>{subtitle}</p>
+      )}
+    </div>
+  );
+}
+
+// ─── Logos ───────────────────────────────────────────────────────────────────
+
+function LogosSection({ tweaks }) {
+  const [ref, vis] = useScrollReveal();
+  const logos = ['TechNova', 'CloudSync', 'DataPulse', 'NetForce', 'SkyBridge', 'VortexAI'];
+  return (
+    <section ref={ref} style={{
+      padding: '48px 48px 80px', textAlign: 'center',
+      opacity: vis ? 1 : 0, transform: vis ? 'translateY(0)' : 'translateY(20px)',
+      transition: 'all 0.8s ease',
+    }}>
+      <p style={{
+        fontSize: '11px', color: 'rgba(255,255,255,0.25)', marginBottom: '28px',
+        letterSpacing: '2.5px', textTransform: 'uppercase', fontWeight: 400,
+        fontFamily: "'Maitree', serif",
+      }}>Empresas que confiam na Voic.IA</p>
+      <div style={{
+        display: 'flex', gap: '40px', justifyContent: 'center', alignItems: 'center',
+      }}>
+        {logos.map(name => (
+          <span key={name} style={{
+            fontSize: '15px', fontWeight: 400, color: 'rgba(255,255,255,0.18)',
+            fontFamily: "'Libre Baskerville', serif",
+            letterSpacing: '1px', transition: 'color 0.3s ease', cursor: 'default',
+          }}
+            onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.4)'}
+            onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.18)'}
+          >{name}</span>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Features ────────────────────────────────────────────────────────────────
+
+function FeaturesSection({ tweaks }) {
+  const [ref, vis] = useScrollReveal();
+  const features = [
+    { title: 'Conversas naturais', desc: 'Vozes ultra-realistas que mantêm conversas fluidas e entendem contexto.' },
+    { title: 'Agendamento inteligente', desc: 'Agende compromissos automaticamente, integrado ao seu calendário.' },
+    { title: 'Memória de sessão', desc: 'Agentes lembram interações anteriores e retomam de onde pararam.' },
+    { title: 'Análise em tempo real', desc: 'Monitore chamadas, visualize métricas e otimize continuamente.' },
+    { title: 'Transferência humana', desc: 'Quando necessário, transferência para atendente com todo o contexto.' },
+    { title: 'Automação de workflows', desc: 'Qualificação de leads, cobrança, pesquisas de satisfação e mais.' },
+  ];
+  return (
+    <section id="funcionalidades" ref={ref} style={{ padding: '100px 48px', maxWidth: '1100px', margin: '0 auto' }}>
+      <SectionHeader
+        label="Funcionalidades"
+        title="Tudo que seus agentes<br/>precisam para trabalhar"
+        subtitle="Recursos avançados para agentes de voz que realmente resolvem."
+        vis={vis} tweaks={tweaks}
+      />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1px', background: 'rgba(255,255,255,0.04)', borderRadius: '16px', overflow: 'hidden' }}>
+        {features.map((f, i) => (
+          <FeatureCard key={i} f={f} i={i} vis={vis} tweaks={tweaks} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function FeatureCard({ f, i, vis, tweaks }) {
+  const [hov, setHov] = React.useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{
+        padding: '36px 32px',
+        background: hov ? 'rgba(255,255,255,0.035)' : 'rgba(6, 4, 14, 1)',
+        transition: 'all 0.4s ease',
+        opacity: vis ? 1 : 0,
+        transitionDelay: `${0.08 * i}s`,
+        cursor: 'default',
+      }}
+    >
+      <div style={{
+        width: '32px', height: '2px',
+        background: hov ? tweaks.accentColor : 'rgba(255,255,255,0.1)',
+        transition: 'all 0.3s ease', marginBottom: '24px',
+      }}></div>
+      <h3 style={{
+        fontFamily: "'Libre Baskerville', serif",
+        fontSize: '17px', fontWeight: 400, color: '#fff', marginBottom: '10px',
+      }}>{f.title}</h3>
+      <p style={{
+        fontFamily: "'Maitree', serif",
+        fontSize: '13px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, margin: 0,
+      }}>{f.desc}</p>
+    </div>
+  );
+}
+
+// ─── How It Works ─────────────────────────────────────────────────────────────
+
+function HowItWorksSection({ tweaks }) {
+  const [ref, vis] = useScrollReveal();
+  const steps = [
+    { title: 'Configure', desc: 'Defina personalidade, tom de voz e scripts do agente.' },
+    { title: 'Conecte', desc: 'Integre com CRM, calendário e suas ferramentas.' },
+    { title: 'Ative', desc: 'Seu agente atende e realiza chamadas 24/7.' },
+    { title: 'Otimize', desc: 'Acompanhe métricas e aprimore continuamente.' },
+  ];
+  return (
+    <section id="como-funciona" ref={ref} style={{ padding: '100px 48px', maxWidth: '1100px', margin: '0 auto' }}>
+      <SectionHeader
+        label="Como funciona"
+        title="Do zero ao automático<br/>em quatro passos"
+        vis={vis} tweaks={tweaks}
+      />
+      <div style={{ display: 'flex', gap: '0', alignItems: 'stretch', position: 'relative' }}>
+        <div style={{
+          position: 'absolute', top: '28px', left: '60px', right: '60px', height: '1px',
+          background: 'rgba(255,255,255,0.06)',
+        }}></div>
+        {steps.map((s, i) => (
+          <div key={i} style={{
+            flex: 1, textAlign: 'center', position: 'relative',
+            opacity: vis ? 1 : 0, transform: vis ? 'translateY(0)' : 'translateY(20px)',
+            transition: 'all 0.6s ease', transitionDelay: `${0.12 * i}s`,
+            padding: '0 16px',
+          }}>
+            <div style={{
+              width: '56px', height: '56px', borderRadius: '50%',
+              background: 'rgba(6, 4, 14, 1)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 24px', position: 'relative', zIndex: 1,
+            }}>
+              <span style={{
+                fontFamily: "'Kadwa', serif",
+                fontSize: '20px', color: tweaks.accentColor,
+              }}>{i + 1}</span>
+            </div>
+            <h3 style={{
+              fontFamily: "'Libre Baskerville', serif",
+              fontSize: '17px', fontWeight: 400, color: '#fff', marginBottom: '8px',
+            }}>{s.title}</h3>
+            <p style={{
+              fontFamily: "'Maitree', serif",
+              fontSize: '13px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.6, margin: 0,
+            }}>{s.desc}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ─── Calls ───────────────────────────────────────────────────────────────────
+
+function CallsSection({ tweaks }) {
+  const [ref, vis] = useScrollReveal();
+  const [tab, setTab] = React.useState('inbound');
+  const data = {
+    inbound: [
+      'Atendimento automático 24/7 com vozes naturais',
+      'Roteamento inteligente baseado em intenção',
+      'Qualificação de leads em tempo real',
+      'Transferência para humanos quando necessário',
+    ],
+    outbound: [
+      'Campanhas de ligações com personalização',
+      'Confirmação de agendamentos e lembretes',
+      'Cobrança automatizada com tom adequado',
+      'Pesquisas de satisfação pós-atendimento',
+    ],
+  };
+  return (
+    <section id="chamadas" ref={ref} style={{ padding: '100px 48px', maxWidth: '1100px', margin: '0 auto' }}>
+      <div style={{
+        opacity: vis ? 1 : 0, transform: vis ? 'translateY(0)' : 'translateY(24px)',
+        transition: 'all 0.8s ease',
+        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '80px', alignItems: 'center',
+      }}>
+        <div>
+          <span style={{ fontSize: '12px', fontWeight: 400, color: tweaks.accentColor, textTransform: 'uppercase', letterSpacing: '3px', fontFamily: "'Maitree', serif" }}>Chamadas</span>
+          <h2 style={{
+            fontFamily: "'Kadwa', serif",
+            fontSize: '40px', fontWeight: 400, color: '#fff',
+            lineHeight: 1.12, margin: '18px 0 14px', letterSpacing: '-0.3px',
+          }}>Entrada e saída.<br/>Sem limites.</h2>
+          <p style={{
+            fontFamily: "'Maitree', serif",
+            fontSize: '15px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, marginBottom: '32px',
+          }}>Seus agentes gerenciam chamadas recebidas e realizam ligações ativas com naturalidade.</p>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '28px' }}>
+            {[{ key: 'inbound', label: 'Entrada' }, { key: 'outbound', label: 'Saída' }].map(t => (
+              <button key={t.key} onClick={() => setTab(t.key)} style={{
+                padding: '7px 20px', borderRadius: '100px', fontSize: '12px', fontWeight: 400,
+                fontFamily: "'Maitree', serif",
+                background: tab === t.key ? 'rgba(255,255,255,0.06)' : 'transparent',
+                color: tab === t.key ? '#fff' : 'rgba(255,255,255,0.35)',
+                border: `1px solid ${tab === t.key ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.06)'}`,
+                cursor: 'pointer', transition: 'all 0.3s ease',
+              }}>{t.label}</button>
+            ))}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            {data[tab].map((item, i) => (
+              <div key={item} style={{
+                display: 'flex', alignItems: 'center', gap: '14px',
+                padding: '0', fontSize: '14px',
+                fontFamily: "'Maitree', serif",
+                color: 'rgba(255,255,255,0.5)',
+                animation: 'fadeSlideIn 0.35s ease forwards',
+                animationDelay: `${i * 0.06}s`, opacity: 0,
+              }}>
+                <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: tweaks.accentColor, flexShrink: 0, opacity: 0.6 }}></div>
+                {item}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{
+          background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+          borderRadius: '16px', padding: '32px', overflow: 'hidden',
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', textAlign: 'center' }}>
+            <div style={{
+              width: '56px', height: '56px', borderRadius: '50%',
+              background: `${tweaks.accentColor}08`,
+              border: `1px solid ${tweaks.accentColor}20`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={tweaks.accentColor} strokeWidth="1.5" strokeOpacity="0.7"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </div>
+            <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', fontFamily: "'Maitree', serif" }}>
+              {tab === 'inbound' ? 'Chamada recebida' : 'Chamada ativa'}
+            </span>
+            <span style={{ fontSize: '18px', fontWeight: 400, color: '#fff', fontFamily: "'Libre Baskerville', serif" }}>
+              {tab === 'inbound' ? '+55 (11) 9****-4321' : 'Maria Silva'}
+            </span>
+            <span style={{ fontSize: '11px', color: tweaks.accentColor, fontFamily: "'Maitree', serif", opacity: 0.7, letterSpacing: '1px', textTransform: 'uppercase' }}>
+              Agente IA respondendo
+            </span>
+            <div style={{ display: 'flex', gap: '2.5px', alignItems: 'center', height: '36px', marginTop: '8px' }}>
+              {Array.from({ length: 28 }).map((_, i) => (
+                <div key={i} style={{
+                  width: '2px', borderRadius: '1px',
+                  background: tweaks.accentColor,
+                  opacity: 0.15 + Math.random() * 0.35,
+                  height: `${6 + Math.random() * 28}px`,
+                  animation: `wave ${0.5 + Math.random() * 0.5}s ease-in-out infinite alternate`,
+                  animationDelay: `${i * 0.04}s`,
+                }}></div>
+              ))}
+            </div>
+            <div style={{ width: '100%', marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{
+                alignSelf: 'flex-start', padding: '10px 14px', borderRadius: '12px 12px 12px 4px',
+                background: 'rgba(255,255,255,0.04)', fontSize: '12px', color: 'rgba(255,255,255,0.5)',
+                maxWidth: '80%', fontFamily: "'Maitree', serif",
+              }}>
+                {tab === 'inbound' ? 'Gostaria de agendar uma consulta para amanhã.' : 'Olá Maria, gostaria de confirmar seu agendamento.'}
+              </div>
+              <div style={{
+                alignSelf: 'flex-end', padding: '10px 14px', borderRadius: '12px 12px 4px 12px',
+                background: `${tweaks.accentColor}0a`, fontSize: '12px', color: 'rgba(255,255,255,0.55)',
+                maxWidth: '80%', fontFamily: "'Maitree', serif",
+                border: `1px solid ${tweaks.accentColor}10`,
+              }}>
+                {tab === 'inbound' ? 'Tenho horários disponíveis às 10h e 14h. Qual prefere?' : 'Perfeito, agendamento confirmado para terça às 15h.'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Integrations ─────────────────────────────────────────────────────────────
+
+function IntegrationsSection({ tweaks }) {
+  const [ref, vis] = useScrollReveal();
+  const items = [
+    'WhatsApp', 'Google Calendar', 'Salesforce', 'HubSpot',
+    'Slack', 'Zapier', 'Twilio', 'Stripe',
+    'Pipedrive', 'RD Station', 'Webhook', 'API REST',
+  ];
+  return (
+    <section id="integracoes" ref={ref} style={{ padding: '100px 48px', textAlign: 'center' }}>
+      <SectionHeader
+        label="Integrações"
+        title="Conecte com as ferramentas<br/>que você já usa"
+        subtitle="Integração nativa com as principais plataformas."
+        vis={vis} tweaks={tweaks}
+      />
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '10px',
+        justifyContent: 'center', maxWidth: '700px', margin: '0 auto',
+      }}>
+        {items.map((name, i) => (
+          <IntBadge key={name} name={name} i={i} vis={vis} tweaks={tweaks} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function IntBadge({ name, i, vis, tweaks }) {
+  const [hov, setHov] = React.useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{
+        padding: '10px 22px', borderRadius: '100px',
+        background: hov ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)',
+        border: `1px solid ${hov ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.05)'}`,
+        fontSize: '13px', fontWeight: 400, fontFamily: "'Maitree', serif",
+        color: hov ? '#fff' : 'rgba(255,255,255,0.4)',
+        transition: 'all 0.3s ease', cursor: 'default',
+        opacity: vis ? 1 : 0, transitionDelay: `${0.03 * i}s`,
+      }}
+    >{name}</div>
+  );
+}
+
+// ─── Pricing ─────────────────────────────────────────────────────────────────
+
+function PricingSection({ tweaks }) {
+  const [ref, vis] = useScrollReveal();
+  const plans = [
+    {
+      name: 'Starter', price: 'R$ 0', period: '/mês', desc: 'Para testar a plataforma', hl: false,
+      features: ['50 min de chamadas/mês', '1 agente de voz', 'Vozes padrão', 'Dashboard básico', 'Suporte por email'],
+    },
+    {
+      name: 'Pro', price: 'R$ 297', period: '/mês', desc: 'Para negócios em crescimento', hl: true,
+      features: ['2.000 min de chamadas/mês', '5 agentes de voz', 'Vozes premium', 'Integrações avançadas', 'Análise em tempo real', 'Suporte prioritário'],
+    },
+    {
+      name: 'Enterprise', price: 'Sob consulta', period: '', desc: 'Para grandes operações', hl: false,
+      features: ['Minutos ilimitados', 'Agentes ilimitados', 'Vozes customizadas', 'API dedicada', 'SLA garantido', 'Gerente de conta'],
+    },
+  ];
+  return (
+    <section id="precos" ref={ref} style={{ padding: '100px 48px', textAlign: 'center' }}>
+      <SectionHeader label="Preços" title="Planos que crescem<br/>com você" vis={vis} tweaks={tweaks} />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', maxWidth: '960px', margin: '0 auto' }}>
+        {plans.map((p, i) => (
+          <PriceCard key={i} plan={p} i={i} vis={vis} tweaks={tweaks} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PriceCard({ plan, i, vis, tweaks }) {
+  const [hov, setHov] = React.useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+      style={{
+        padding: '36px 28px', borderRadius: '16px', textAlign: 'left',
+        background: plan.hl ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.015)',
+        border: `1px solid ${plan.hl ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)'}`,
+        transition: 'all 0.4s ease',
+        transform: vis ? (hov ? 'translateY(-3px)' : 'translateY(0)') : 'translateY(24px)',
+        opacity: vis ? 1 : 0, transitionDelay: `${0.1 * i}s`,
+        position: 'relative',
+      }}
+    >
+      {plan.hl && <div style={{
+        position: 'absolute', top: '20px', right: '20px',
+        padding: '3px 12px', borderRadius: '100px', fontSize: '10px', fontWeight: 400,
+        fontFamily: "'Maitree', serif",
+        background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.6)',
+        border: '1px solid rgba(255,255,255,0.08)',
+        letterSpacing: '0.5px', textTransform: 'uppercase',
+      }}>Popular</div>}
+      <div style={{ fontSize: '14px', fontWeight: 400, color: 'rgba(255,255,255,0.4)', marginBottom: '8px', fontFamily: "'Maitree', serif" }}>{plan.name}</div>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: '4px', marginBottom: '6px' }}>
+        <span style={{ fontSize: '32px', fontWeight: 400, color: '#fff', fontFamily: "'Kadwa', serif" }}>{plan.price}</span>
+        <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', fontFamily: "'Maitree', serif" }}>{plan.period}</span>
+      </div>
+      <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.3)', marginBottom: '28px', fontFamily: "'Maitree', serif" }}>{plan.desc}</p>
+      <button style={{
+        width: '100%', padding: '11px', borderRadius: '100px', fontSize: '13px', fontWeight: 400,
+        fontFamily: "'Maitree', serif",
+        background: plan.hl ? '#fff' : 'transparent',
+        color: plan.hl ? '#080512' : 'rgba(255,255,255,0.6)',
+        border: plan.hl ? 'none' : '1px solid rgba(255,255,255,0.08)',
+        cursor: 'pointer', transition: 'all 0.3s ease', marginBottom: '28px',
+      }}>{plan.hl ? 'Começar agora' : plan.price === 'Sob consulta' ? 'Falar com vendas' : 'Começar grátis'}</button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        {plan.features.map((feat, fi) => (
+          <div key={fi} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: plan.hl ? tweaks.accentColor : 'rgba(255,255,255,0.15)', flexShrink: 0 }}></div>
+            <span style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', fontFamily: "'Maitree', serif" }}>{feat}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── FAQ ─────────────────────────────────────────────────────────────────────
+
+function FAQSection({ tweaks }) {
+  const [ref, vis] = useScrollReveal();
+  const faqs = [
+    { q: 'Como funciona o agente de voz IA?', a: 'Nossos agentes utilizam modelos avançados de linguagem natural combinados com síntese de voz ultra-realista para atender e realizar chamadas de forma autônoma.' },
+    { q: 'Quanto tempo leva para configurar?', a: 'Em menos de 15 minutos você pode ter seu primeiro agente funcionando. Basta definir o script, conectar seu número e ativar.' },
+    { q: 'Posso usar meu próprio número?', a: 'Sim. Você pode usar seu número existente ou adquirir um novo diretamente na plataforma.' },
+    { q: 'Os agentes falam português brasileiro?', a: 'Sim, com vozes naturais e expressivas otimizadas para PT-BR. Também suportamos outros idiomas.' },
+    { q: 'Como é feita a cobrança?', a: 'Cobrança mensal baseada no plano escolhido. Minutos adicionais disponíveis sob demanda.' },
+    { q: 'Posso cancelar a qualquer momento?', a: 'Sim, sem fidelidade. Cancele quando quiser pelo painel.' },
+  ];
+  return (
+    <section id="faq" ref={ref} style={{ padding: '100px 48px', maxWidth: '720px', margin: '0 auto' }}>
+      <SectionHeader label="FAQ" title="Perguntas frequentes" vis={vis} tweaks={tweaks} />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        {faqs.map((faq, i) => (
+          <FAQItem key={i} faq={faq} i={i} vis={vis} tweaks={tweaks} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function FAQItem({ faq, i, vis, tweaks }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div style={{
+      borderBottom: '1px solid rgba(255,255,255,0.04)',
+      transition: 'all 0.3s ease',
+      opacity: vis ? 1 : 0, transitionDelay: `${0.05 * i}s`,
+    }}>
+      <div onClick={() => setOpen(!open)} style={{
+        padding: '20px 0', cursor: 'pointer',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <span style={{ fontSize: '15px', fontWeight: 400, color: open ? '#fff' : 'rgba(255,255,255,0.6)', fontFamily: "'Libre Baskerville', serif", transition: 'color 0.3s' }}>{faq.q}</span>
+        <span style={{
+          color: 'rgba(255,255,255,0.2)', fontSize: '18px', fontWeight: 300,
+          transform: open ? 'rotate(45deg)' : 'rotate(0)',
+          transition: 'all 0.3s ease', flexShrink: 0, marginLeft: '16px',
+        }}>+</span>
+      </div>
+      <div style={{
+        maxHeight: open ? '160px' : '0', paddingBottom: open ? '20px' : '0',
+        transition: 'all 0.35s ease', overflow: 'hidden',
+      }}>
+        <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, margin: 0, fontFamily: "'Maitree', serif" }}>{faq.a}</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── CTA Band ─────────────────────────────────────────────────────────────────
+
+function CTABand({ tweaks }) {
+  const [ref, vis] = useScrollReveal();
+  return (
+    <section ref={ref} style={{
+      padding: '100px 48px', textAlign: 'center',
+      opacity: vis ? 1 : 0, transform: vis ? 'translateY(0)' : 'translateY(24px)',
+      transition: 'all 0.8s ease',
+    }}>
+      <h2 style={{
+        fontFamily: "'Kadwa', serif",
+        fontSize: '40px', fontWeight: 400, color: '#fff',
+        lineHeight: 1.15, marginBottom: '20px',
+      }}>Pronto para automatizar<br/>suas chamadas?</h2>
+      <p style={{
+        fontFamily: "'Maitree', serif",
+        fontSize: '15px', color: 'rgba(255,255,255,0.35)', marginBottom: '36px',
+      }}>Comece grátis. Sem cartão de crédito.</p>
+      <button style={{
+        padding: '14px 36px', borderRadius: '100px', fontSize: '14px',
+        fontFamily: "'Maitree', serif",
+        background: '#fff', color: '#080512', border: 'none',
+        cursor: 'pointer', transition: 'all 0.3s ease', fontWeight: 500,
+      }}
+        onMouseEnter={e => { e.target.style.transform = 'translateY(-1px)'; e.target.style.boxShadow = '0 8px 32px rgba(255,255,255,0.08)'; }}
+        onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = 'none'; }}
+      >Agendar demonstração</button>
+    </section>
+  );
+}
+
+// ─── Footer ───────────────────────────────────────────────────────────────────
+
+function FooterSection({ tweaks }) {
+  return (
+    <footer style={{
+      padding: '48px 48px 28px',
+      borderTop: '1px solid rgba(255,255,255,0.04)',
+    }}>
+      <div style={{
+        maxWidth: '1100px', margin: '0 auto',
+        display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '40px',
+      }}>
+        <div>
+          <img src="assets/logo-voic.svg" alt="Voic" style={{ height: '22px', filter: 'brightness(0) invert(1)', opacity: 0.6, marginBottom: '12px' }} />
+          <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.25)', lineHeight: 1.7, maxWidth: '260px', fontFamily: "'Maitree', serif" }}>
+            Plataforma de agentes de voz com inteligência artificial para automatizar comunicações.
+          </p>
+        </div>
+        {[
+          { title: 'Produto', links: ['Funcionalidades', 'Integrações', 'Preços', 'Changelog'] },
+          { title: 'Empresa', links: ['Sobre nós', 'Blog', 'Carreiras', 'Contato'] },
+          { title: 'Legal', links: ['Privacidade', 'Termos', 'Cookies', 'LGPD'] },
+        ].map(col => (
+          <div key={col.title}>
+            <div style={{ fontSize: '11px', fontWeight: 400, color: 'rgba(255,255,255,0.3)', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '2px', fontFamily: "'Maitree', serif" }}>{col.title}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {col.links.map(link => (
+                <a key={link} href="#" style={{
+                  fontSize: '13px', color: 'rgba(255,255,255,0.3)', textDecoration: 'none',
+                  fontFamily: "'Maitree', serif", transition: 'color 0.2s',
+                }}
+                  onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.6)'}
+                  onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.3)'}
+                >{link}</a>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{
+        maxWidth: '1100px', margin: '40px auto 0',
+        paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.04)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+      }}>
+        <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.2)', fontFamily: "'Maitree', serif" }}>© 2026 Voic.IA — Todos os direitos reservados.</span>
+        <div style={{ display: 'flex', gap: '20px' }}>
+          {['LinkedIn', 'Instagram', 'YouTube'].map(s => (
+            <a key={s} href="#" style={{ fontSize: '12px', color: 'rgba(255,255,255,0.2)', textDecoration: 'none', fontFamily: "'Maitree', serif", transition: 'color 0.2s' }}
+              onMouseEnter={e => e.target.style.color = 'rgba(255,255,255,0.5)'}
+              onMouseLeave={e => e.target.style.color = 'rgba(255,255,255,0.2)'}
+            >{s}</a>
+          ))}
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// ─── App ─────────────────────────────────────────────────────────────────────
+
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accentColor": "#8b5cf6",
+  "accentColorDark": "#6d28d9",
+  "heroStyle": "a",
+  "headlineSize": "medio"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [tweaks, setTweak] = useTweaks(TWEAK_DEFAULTS);
+
+  return (
+    <React.Fragment>
+      <Navbar tweaks={tweaks} />
+      <HeroSection tweaks={tweaks} />
+      <LogosSection tweaks={tweaks} />
+      <FeaturesSection tweaks={tweaks} />
+      <HowItWorksSection tweaks={tweaks} />
+      <CallsSection tweaks={tweaks} />
+      <IntegrationsSection tweaks={tweaks} />
+      <PricingSection tweaks={tweaks} />
+      <FAQSection tweaks={tweaks} />
+      <CTABand tweaks={tweaks} />
+      <FooterSection tweaks={tweaks} />
+
+      <TweaksPanel title="Voic.IA — Variações">
+        <TweakSection label="Cores">
+          <TweakColor
+            label="Cor de destaque"
+            value={tweaks.accentColor}
+            onChange={v => {
+              setTweak('accentColor', v);
+              const darks = { '#8b5cf6': '#6d28d9', '#6366f1': '#4f46e5', '#3b82f6': '#2563eb', '#06b6d4': '#0891b2' };
+              setTweak('accentColorDark', darks[v] || '#6d28d9');
+            }}
+            options={['#8b5cf6', '#6366f1', '#3b82f6', '#06b6d4']}
+          />
+        </TweakSection>
+        <TweakSection label="Hero">
+          <TweakRadio
+            label="Headline"
+            value={tweaks.heroStyle}
+            onChange={v => setTweak('heroStyle', v)}
+            options={[
+              { label: 'A', value: 'a' },
+              { label: 'B', value: 'b' },
+              { label: 'C', value: 'c' },
+            ]}
+          />
+          <TweakRadio
+            label="Tamanho"
+            value={tweaks.headlineSize}
+            onChange={v => setTweak('headlineSize', v)}
+            options={[
+              { label: 'P', value: 'pequeno' },
+              { label: 'M', value: 'medio' },
+              { label: 'G', value: 'grande' },
+            ]}
+          />
+        </TweakSection>
+      </TweaksPanel>
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('app-root')).render(<App />);
+</script>
+
+</body>
+</html>
