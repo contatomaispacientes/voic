@@ -1,44 +1,69 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { Tweaks } from "@/types/tweaks";
 
 const COLUMNS = [
-  { title: "Produto", links: ["Funcionalidades", "Integrações", "Preços", "Changelog"] },
-  { title: "Empresa", links: ["Sobre nós", "Blog", "Carreiras", "Contato"] },
-  { title: "Legal", links: ["Privacidade", "Termos", "Cookies", "LGPD"] },
+  {
+    title: "Produto",
+    links: [
+      { label: "Funcionalidades", href: "/funcionalidades" },
+      { label: "Integrações",     href: "/integracoes"     },
+      { label: "Preços",          href: "/precos"          },
+      { label: "Changelog",       href: "#"                },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { label: "Privacidade", href: "/privacidade" },
+      { label: "Termos",      href: "/termos"      },
+      { label: "Cookies",     href: "/cookies"     },
+      { label: "LGPD",        href: "/lgpd"        },
+    ],
+  },
 ];
 
-const SOCIALS = ["LinkedIn", "Instagram", "YouTube"];
+const linkStyle: React.CSSProperties = {
+  fontSize: "13px",
+  color: "rgba(255,255,255,0.3)",
+  textDecoration: "none",
+  fontFamily: "var(--font-maitree), serif",
+  transition: "color 0.2s",
+};
 
 export default function Footer({ tweaks: _tweaks }: { tweaks: Tweaks }) {
   return (
     <footer
       style={{
-        padding: "clamp(32px,5vw,48px) clamp(20px,4vw,48px) 28px",
-        borderTop: "1px solid rgba(255,255,255,0.04)",
+        padding: "clamp(40px,5vw,64px) clamp(20px,4vw,48px) clamp(24px,3vw,36px)",
+        borderTop: "1px solid rgba(255,255,255,0.06)",
       }}
     >
+      {/* ── Main grid: logo + 2 colunas ── */}
       <div
-        className="grid-4"
+        className="grid-3"
         style={{
-          maxWidth: "1100px",
+          maxWidth: "960px",
           margin: "0 auto",
-          gridTemplateColumns: "2fr 1fr 1fr 1fr",
+          gridTemplateColumns: "2fr 1fr 1fr",
+          gap: "clamp(24px,4vw,60px)",
         }}
       >
+        {/* Logo + descrição */}
         <div>
           <Image
             src="/assets/logo-voic.svg"
-            alt="Voic"
+            alt="Voic.IA"
             width={80}
             height={22}
-            style={{ filter: "brightness(0) invert(1)", opacity: 0.6, marginBottom: "12px" }}
+            style={{ filter: "brightness(0) invert(1)", opacity: 0.6, marginBottom: "14px" }}
           />
           <p
             style={{
               fontSize: "13px",
               color: "rgba(255,255,255,0.25)",
-              lineHeight: 1.7,
-              maxWidth: "260px",
+              lineHeight: 1.75,
+              maxWidth: "240px",
               fontFamily: "var(--font-maitree), serif",
             }}
           >
@@ -47,15 +72,16 @@ export default function Footer({ tweaks: _tweaks }: { tweaks: Tweaks }) {
           </p>
         </div>
 
+        {/* Colunas de links */}
         {COLUMNS.map((col) => (
           <div key={col.title}>
             <div
               style={{
-                fontSize: "11px",
-                color: "rgba(255,255,255,0.3)",
+                fontSize: "10px",
+                color: "rgba(255,255,255,0.28)",
                 marginBottom: "16px",
                 textTransform: "uppercase",
-                letterSpacing: "2px",
+                letterSpacing: "2.5px",
                 fontFamily: "var(--font-maitree), serif",
               }}
             >
@@ -63,78 +89,63 @@ export default function Footer({ tweaks: _tweaks }: { tweaks: Tweaks }) {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               {col.links.map((link) => (
-                <a
-                  key={link}
-                  href="#"
-                  style={{
-                    fontSize: "13px",
-                    color: "rgba(255,255,255,0.3)",
-                    textDecoration: "none",
-                    fontFamily: "var(--font-maitree), serif",
-                    transition: "color 0.2s",
-                  }}
+                <Link
+                  key={link.label}
+                  href={link.href}
+                  style={linkStyle}
                   onMouseEnter={(e) =>
-                    ((e.target as HTMLElement).style.color =
-                      "rgba(255,255,255,0.6)")
+                    ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.6)")
                   }
                   onMouseLeave={(e) =>
-                    ((e.target as HTMLElement).style.color =
-                      "rgba(255,255,255,0.3)")
+                    ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.3)")
                   }
                 >
-                  {link}
-                </a>
+                  {link.label}
+                </Link>
               ))}
             </div>
           </div>
         ))}
       </div>
 
+      {/* ── Bottom bar ── */}
       <div
         style={{
-          maxWidth: "1100px",
-          margin: "40px auto 0",
+          maxWidth: "960px",
+          margin: "clamp(28px,4vw,40px) auto 0",
           paddingTop: "20px",
           borderTop: "1px solid rgba(255,255,255,0.04)",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
         }}
       >
         <span
           style={{
-            fontSize: "12px",
-            color: "rgba(255,255,255,0.2)",
+            fontSize: "11px",
+            color: "rgba(255,255,255,0.18)",
             fontFamily: "var(--font-maitree), serif",
           }}
         >
-          © 2026 Voic.IA — Todos os direitos reservados.
+          © 2026 Voic.IA — Todos os direitos reservados.{" "}
+          Desenvolvido por{" "}
+          <a
+            href="https://sistemateasy.com.br/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              color: "rgba(255,255,255,0.35)",
+              textDecoration: "none",
+              transition: "color 0.2s",
+            }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.6)")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLElement).style.color = "rgba(255,255,255,0.35)")
+            }
+          >
+            Sistemateasy
+          </a>
+          .
         </span>
-        <div style={{ display: "flex", gap: "20px" }}>
-          {SOCIALS.map((s) => (
-            <a
-              key={s}
-              href="#"
-              style={{
-                fontSize: "12px",
-                color: "rgba(255,255,255,0.2)",
-                textDecoration: "none",
-                fontFamily: "var(--font-maitree), serif",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={(e) =>
-                ((e.target as HTMLElement).style.color =
-                  "rgba(255,255,255,0.5)")
-              }
-              onMouseLeave={(e) =>
-                ((e.target as HTMLElement).style.color =
-                  "rgba(255,255,255,0.2)")
-              }
-            >
-              {s}
-            </a>
-          ))}
-        </div>
       </div>
     </footer>
   );
